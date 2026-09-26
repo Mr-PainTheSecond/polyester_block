@@ -23,23 +23,50 @@
     '#PORTABLE_INFOBOX_BOXAD',
     '#RAIL_BOXAD',
     '#BOTTOM_LEADERBOARD_BOXAD',
+    'lngtd-ad-wrapper-banner'
   ];
 
 
 const COMBINED_SELECTOR = AD_SELECTORS.join(',');
 
+class AD {
+    constructor(div, aLink, video, width, height) {
+        this.div = div;
+        this.aLink = aLink;
+        this.video = video;
+        this.width = width;
+        this.height = height;
+    }
+
+    fixSize() {
+        console.log("Trying to fix size...");
+
+        this.div.style.width = this.width;
+        this.div.style.height = this.height;
+
+        this.aLink.style.width = this.width;
+        this.aLink.style.height = this.height;
+
+        this.video.style.width = this.width;
+        this.video.style.height = this.height;
+    }
+}
+
+adArray = []
+
 function adSweep(parent, ads) {
-    const prevWidth = ads.offsetWidth;
-    const prevHeight = ads.offsetHeight;
     const prevRect = ads.getBoundingClientRect();
     const polyesterAd = document.createElement("video");
+    const polyDiv = document.createElement("div");
+    const minDimension = Math.min(parent.width, parent.height);
+    console.log(minDimension);
+    polyDiv.style.width = `${50}%`;
+    polyDiv.style.height = `${50}%`;
 
 
     polyesterAd.src = chrome.runtime.getURL("Videos/PolyNormal.mp4");
-    polyesterAd.style.width = `${prevWidth}px`;
-    polyesterAd.style.height = `${200}px`;
     polyesterAd.autoplay = true;
-    polyesterAd.loop = false;
+    polyesterAd.loop = true;
     polyesterAd.muted = false;
     polyesterAd.controls = false;
     polyesterAd.className = "Polyester"
@@ -48,32 +75,23 @@ function adSweep(parent, ads) {
 
     const AdLink = document.createElement("a");
     AdLink.style.position = "relative";
-    AdLink.style.width = `${prevWidth}px`;
-    AdLink.style.height = `${prevHeight}px`;
+    AdLink.style.width = `${50}%`;
+    AdLink.style.height = `${50}%`;
     AdLink.href = "https://www.youtube.com/watch?v=zswT92VzOYM&pp=ygUYcG9seWVzdGVyIHNwaWRlcm1hbiBlZGl0";
     AdLink.target = "_blank";
 
     AdLink.appendChild(polyesterAd);
-    parent.appendChild(AdLink);
+    polyDiv.appendChild(AdLink);
+    parent.appendChild(polyDiv);
 
 
     polyesterAd.load();
     console.log("May play...");
+
+    const newAD = new AD(polyDiv, AdLink, polyesterAd, `${minDimension}px`, `${minDimension}px`);
+    adArray[adArray.length] = newAD;
 }
 
-function replaceAd(element) {
-    const ads = document.getElementById("fandom-ad-wrapper");
-    
-    if(ads) {
-        adSweep(ads);
-    }
-
-    const classAds = document.getElementsByClassName("fandom-ad-wrapper");
-
-    for (let a = 0; a < classAds.length; a++) {
-        adSweep(classAds[a]);
-    }
-}
 
 function isAdElement(el) {
     if (!(el instanceof Element)) return false;
@@ -86,6 +104,22 @@ function isAdElement(el) {
     });
   }
 
+
+function findNearestNonAd(node) {
+    let parent = node.parentElement;
+
+    while (isAdElement(parent)) {
+        parent = parent.parentElement;
+    }
+
+    return parent;
+}
+
+function fixSizes() {
+    for (let a = 0; a < adArray.length; a++) {
+        adArray[a]?.fixSize();
+    }
+}
 // function findMatchingElement(el) {
 //     for (let a = 0; a < AD_SELECTORS.length; a++) {
 //         if (el.matches(sel[a])) {
@@ -95,6 +129,8 @@ function isAdElement(el) {
 
 //     return null;
 // }
+
+
 
 var rectList = []
 
@@ -106,7 +142,7 @@ const observer = new MutationObserver((mutations) => {
             if (node instanceof Element) {
                 const isAd = isAdElement(node);
                 if (isAd) {
-                    const successor = node.parentElement;
+                    const successor = findNearestNonAd(node);
                     
                     adSweep(successor, node);
 
@@ -128,3 +164,5 @@ observer.observe(document.body, {
     childList: true,
     subtree: true
 });
+
+// setInterval(() => {fixSizes();}, 34);
