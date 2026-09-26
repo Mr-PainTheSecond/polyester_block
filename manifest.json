@@ -26,7 +26,7 @@
   ],
 
   "permissions": [
-    "scripting", "activeTab"
+    "scripting", "activeTab", "storage"
   ],
   
     "icons": {
