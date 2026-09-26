@@ -8,6 +8,7 @@
         "default_popup": "src/index.html"
     }
     ,
+
     "content_scripts": [
     {
       "js": ["src/video_replace.js"],
@@ -16,7 +17,15 @@
       ]
     }
   ],
+
+   "web_accessible_resources": [
+    {
+      "resources": ["Videos/*.mp4"],
+      "matches": ["https://*.com/*"]
+    }
+  ],
+
   "permissions": [
-    "scripting"
+    "scripting", "activeTab"
   ]
 }

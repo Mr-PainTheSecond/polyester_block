@@ -27,27 +27,36 @@
 const COMBINED_SELECTOR = AD_SELECTORS.join(',');
 
 function adSweep(ads) {
-    console.log("Hit Ad!");
+    const prevWidth = ads.offsetWidth;
+    const prevHeight = ads.offsetHeight;
+    const prevRect = ads.getBoundingClientRect();
     ads.innerHTML = ""  
-    const polyesterAd = document.createElement("Video");
+    const polyesterAd = document.createElement("video");
 
-    polyesterAd.src = "polyester_block/Videos/PolyNormal.mp4";
-    polyesterAd.width = "100%";
-    polyesterAd.height = "100%";
+    polyesterAd.src = chrome.runtime.getURL("Videos/PolyNormal.mp4");
+    polyesterAd.style.width = `${prevWidth}px`;
+    polyesterAd.style.height = `${200}px`;
     polyesterAd.autoplay = true;
-    polysesterAd.loop = true;
-    polyesterAd.muted = true;
+    polyesterAd.loop = false;
+    polyesterAd.muted = false;
     polyesterAd.controls = false;
+    polyesterAd.className = "Polyester"
     polyesterAd.style.objectFit = "cover";
 
+
     const AdLink = document.createElement("a");
+    AdLink.style.position = "relative";
+    AdLink.style.width = `${prevWidth}px`;
+    AdLink.style.height = `${prevHeight}px`;
     AdLink.href = "https://www.youtube.com/watch?v=zswT92VzOYM&pp=ygUYcG9seWVzdGVyIHNwaWRlcm1hbiBlZGl0";
     AdLink.target = "_blank";
 
     AdLink.appendChild(polyesterAd);
     ads.appendChild(AdLink);
 
-    Console.log("Ad Replaced");
+
+    polyesterAd.load();
+    console.log("May play...");
 }
 
 function replaceAd(element) {
@@ -64,14 +73,26 @@ function replaceAd(element) {
     }
 }
 
+function isAdElement(el) {
+    if (!(el instanceof Element)) return false;
+    return AD_SELECTORS.some((sel) => {
+      try {
+        return el.matches(sel);
+      } catch (e) {
+        return false;
+      }
+    });
+  }
+
+
 const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {
             if (node instanceof Element) {
-                const fandomAD = node.querySelectorAll?.(AD_SELECTORS);
-                if (fandomAD) {
+                const isAd = isAdElement(node)
+                if (isAd) {
                     console.log("Found video/img");
-                    replaceAd(node);
+                    adSweep(node);
                 }
             }
             
