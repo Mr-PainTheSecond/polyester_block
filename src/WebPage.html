@@ -26,9 +26,10 @@
         }
 
         h2 {
-            color: #ffffff;
-            align-items: left;
-            margin-left: 100px;
+            color: #000000;
+            align-items: right;
+            margin-left: 1000px;    
+            transform: translateY(-460%);
         }
 
         h3 {
@@ -36,6 +37,7 @@
             align-items: left;
             margin-left: 100px;
             font-size: 16px;
+            margin-bottom: 5px;
         }
         
         label {
@@ -50,15 +52,37 @@
             border-radius: 12px;
         }
 
+        #blacklist{
+            color: #000000;
+            transform: translateY(-550%);
+        }
 
+        .bl {
+            color: #000000;
+            margin-left: 1000px;
+            transform: translateY(-460%);
+            position: relative;
+
+            bottom: 115px;
+        }
+
+        #submitBlacklist {
+            transform: translateY(-550%);
+        }
     </style>
     <body>
         <h1>Polyester Block</h1>
-        <h2>White list: </h2>
+        <h3>White list: </h3>
         <label for="whitelist">Enter websites to whitelist:</label>
         <input type="url" id="whitelist" name="whitelist" placeholder="Enter website URL">
-        <button id = "submitURL">Submit URL</button>
+        <button id = "submitWhitelist">Submit URL</button>
         <h3>URLs here:</h3>
+
+        <h2>Black List: </h2>
+        <label class="bl" for="blacklist">Enter websites to blacklist:</label>
+        <input type="url" id="blacklist" name="blacklist" placeholder="Enter website URL">
+        <button id = "submitBlacklist">Submit URL</button>
+        <h2>URLs here:</h2>
 
         <video controls autoplay loop playsinline id="videoBounce">
                 <source src="../Videos/PolyNormal.mp4" type="video/mp4">
