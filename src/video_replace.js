@@ -1,6 +1,16 @@
 
+console.log("starting video_replace.js");
 
-  const AD_SELECTORS = [
+const VIDEO_LIST = [
+    "Videos/PolyNormal.mp4",
+    "Videos/PolyLowRes.mp4",
+    "Videos/PolyScout.mp4",
+    "Videos/PolyBaldi.mp4",
+    "Videos/PolyBackrooms.mp4",
+    "Videos/PolyIronMan.mp4"
+];
+
+ const AD_SELECTORS = [
     '[id^="WikiaAd"]',
     '[id*="ad-slot"]',
     '[class*="ad-slot"]',
@@ -26,8 +36,25 @@
     'lngtd-ad-wrapper-banner'
   ];
 
+let adFlagsList = null;
 
-const COMBINED_SELECTOR = AD_SELECTORS.join(',');
+function readTextFile(file) {
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function() {
+        if (rawFile.readyState === 4) {
+            if (rawFile.status === 200 || rawFile.status == 0) {
+                adFlagsList = rawFile.responseText.split("\n");
+            }
+        }
+    }
+    rawFile.send(null);
+}
+
+
+readTextFile(chrome.runtime.getURL("data/easylist.txt"));
+
+const COMBINED_SELECTOR = adFlagsList.join(',');
 
 class AD {
     constructor(div, aLink, video, width, height) {
@@ -54,6 +81,10 @@ class AD {
 
 adArray = []
 
+function randInt(low, high) {
+    return low + Math.floor((Math.random() * (high - low)));
+}
+
 function adSweep(parent, ads) {
     const prevRect = ads.getBoundingClientRect();
     const polyesterAd = document.createElement("video");
@@ -63,8 +94,9 @@ function adSweep(parent, ads) {
     polyDiv.style.width = `${50}%`;
     polyDiv.style.height = `${50}%`;
 
-
-    polyesterAd.src = chrome.runtime.getURL("Videos/PolyNormal.mp4");
+    const chosenVideo = VIDEO_LIST[randInt(0, VIDEO_LIST.length)];
+    console.log(chosenVideo);
+    polyesterAd.src = chrome.runtime.getURL(chosenVideo);
     polyesterAd.autoplay = true;
     polyesterAd.loop = true;
     polyesterAd.muted = false;
