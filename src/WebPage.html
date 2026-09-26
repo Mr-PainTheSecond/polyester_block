@@ -18,20 +18,53 @@
             overflow: hidden;
         }
 
+        h1 {
+            color: #000000;
+            align-items: center;
+            justify-content: center;
+            margin-left: 700px;
+        }
+
+        h2 {
+            color: #ffffff;
+            align-items: left;
+            margin-left: 100px;
+        }
+
+        h3 {
+            color: #ffffff;
+            align-items: left;
+            margin-left: 100px;
+            font-size: 16px;
+        }
+        
+        label {
+            color: #ffffff;
+            align-items: left;
+            margin-left: 100px;
+        }
+
         #videoBounce {
             position: absolute;
             width: 320px;
             border-radius: 12px;
         }
 
+
     </style>
     <body>
         <h1>Polyester Block</h1>
+        <h2>White list: </h2>
+        <label for="whitelist">Enter websites to whitelist:</label>
+        <input type="url" id="whitelist" name="whitelist" placeholder="Enter website URL">
+        <button id = "submitURL">Submit URL</button>
+        <h3 id="urlResult">URLs here</h3>
 
         <video controls autoplay loop playsinline id="videoBounce">
                 <source src="../Videos/PolyNormal.mp4" type="video/mp4">
         </video>
 
         <script src = "VidBounce.js"></script>
+        <script src = "SaveURL.js"></script>
     </body>
 </html>
