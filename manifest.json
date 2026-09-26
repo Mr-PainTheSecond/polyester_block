@@ -1,0 +1,10 @@
+{
+    "name": "Polyester Block",
+    "description": "A way to block using polyester edits",
+    "manifest_version": 3,
+    "version": "1.0"
+    ,
+    "action": {
+        "default_popup": "src/index.html"
+    }
+}
