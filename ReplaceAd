@@ -1,6 +1,6 @@
 const observer = new MutationObserver((mutations) => {
     const ads = document.getElementById("ad-banner-slot");
-    
+
     
     if(ads) {
         ads.innerHTML = ""  
