@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <title>Polyester Block</title>
+    <style>
+        title {
+            color: #333;
+            align-items: center;
+            margin-left: 100px;
+        }
+
+        body {
+            background-color: #760303;
+            font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+            text-align: left;
+            padding-top: 50px;
+            height: 50vh;
+            width: 125vw;
+            overflow: hidden;
+        }
+
+        #videoBounce {
+            position: absolute;
+            width: 320px;
+            border-radius: 12px;
+        }
+
+    </style>
+    <body>
+        <h1>Polyester Block</h1>
+
+        <video controls autoplay loop playsinline id="videoBounce">
+                <source src="../Videos/PolyNormal.mp4" type="video/mp4">
+        </video>
+
+        <script>
+            const vid = document.getElementById("videoBounce");
+
+            let x = Math.random() * (window.innerWidth - 300);
+            let y = Math.random() * (window.innerHeight - 150);
+            let xSpeed = 3;
+            let ySpeed = 3;
+
+            function moveVideo() {
+                const vidWidth = vid.offsetWidth;
+                const vidHeight = vid.offsetHeight;
+
+                x += xSpeed;
+                y += ySpeed;
+
+                if (x + vidWidth > window.innerWidth || x <= 0) {
+                    xSpeed -= xSpeed * -1;
+                }
+                if (y + vidHeight > window.innerHeight || y <= 0) {
+                    ySpeed -= ySpeed * -1;
+                }
+
+                vid.style.left = x + "px";
+                vid.style.top = y + "px";
+
+                requestAnimationFrame(moveVideo);
+            }
+
+            vid.addEventListener("loadedmetadata", () => {
+                moveVideo();
+            });
+        </script>
+    </body>
+</html>
