@@ -16,6 +16,32 @@ const VIDEO_LIST = [
     "Videos/PolyToy.mp4"
 ];
 
+const KEY_NAME = "whitelist";
+
+async function createStorage() {
+    // chrome.storage.local.clear();
+
+    let initialized = await chrome.storage.local.get(["init"]);
+
+    console.log(initialized.init);
+    if (initialized.init === undefined) {
+        console.log("initializing...");
+        await chrome.storage.local.set({init: true});
+        initialized = await chrome.storage.local.get(["init"]);
+        console.log(initialized.init);
+        await chrome.storage.local.set({whitelist: Array()});
+    }
+
+    let theWhitelist = await chrome.storage.local.get(["whitelist"]);
+    console.log(theWhitelist);
+}
+
+createStorage().then(() => {
+    console.log(chrome.storage.local.get(["whitelist"]));
+
+    appendWhiteList("https://www.youtube.com");
+});
+
 const AD_SELECTORS = [
     '[id^="WikiaAd"]',
     '[id*="ad-slot"]',
@@ -112,6 +138,11 @@ function readTextFile(file) {
     rawFile.send(null);
 }
 
+function saveAsDownload(text, filename = 'output.txt') {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    chrome.downloads.download({ url, filename, saveAs: false });
+}
 
 readTextFile(chrome.runtime.getURL("data/easylist.txt"));
 
@@ -154,10 +185,11 @@ function randInt(low, high) {
 
 async function adSweep(parent, ads, muted) {
 
+    let percent = 40;
     const polyesterAd = document.createElement("video");
     const polyDiv = document.createElement("div");
-    polyDiv.style.width = `${10}%`;
-    polyDiv.style.height = `${10}%`;
+    polyDiv.style.width = `${percent}%`;
+    polyDiv.style.height = `${percent}%`;
 
     const chosenVideo = VIDEO_LIST[randInt(0, VIDEO_LIST.length)];
     console.log(chosenVideo);
@@ -172,11 +204,11 @@ async function adSweep(parent, ads, muted) {
 
     const AdLink = document.createElement("a");
 
-    const isYouTube = window.location.hostname.includes('youtube.com');
+    const isYouTube = (window.location.hostname.includes('youtube.com') || window.location.hostname.includes('stackoverflow.com') );
     AdLink.style.position = isYouTube ? 'fixed' : 'relative';
 
-    AdLink.style.width = `${10}%`;
-    AdLink.style.height = `${10}%`;
+    AdLink.style.width = `${percent}%`;
+    AdLink.style.height = `${percent}%`;
     AdLink.href = "https://www.youtube.com/watch?v=zswT92VzOYM&pp=ygUYcG9seWVzdGVyIHNwaWRlcm1hbiBlZGl0";
     AdLink.target = "_blank";
 
@@ -202,6 +234,22 @@ function isAdElement(el) {
     });
   }
 
+async function appendWhiteList(url) {
+
+    var oldWhiteList = await chrome.storage.local.get(["whitelist"]);
+    console.log(oldWhiteList);
+    let currentWhiteList = oldWhiteList.whitelist;
+    if (!(currentWhiteList.includes(url))) {
+        currentWhiteList.push(url);
+    }
+
+    return await chrome.storage.local.set({whitelist: currentWhiteList});
+}
+
+async function getWhiteList() {
+    let currentWhiteListObj = await chrome.storage.local.get(["whitelist"]);
+    return currentWhiteListObj;
+}
 
 function findNearestNonAd(node) {
     let parent = node.parentElement;
@@ -229,6 +277,7 @@ function fixSizes() {
 // }
 
 
+
 function trySize() {
     if (adArray.length === 0) return;
 
@@ -252,34 +301,58 @@ function trySize() {
 
 var rectList = []
 
+
 const observer = new MutationObserver((mutations) => {
     rectList = []
 
-    for (const mutation of mutations) {
-        for (const node of mutation.addedNodes) {
-            if (node instanceof Element) {
-                const isAd = isAdElement(node);
-                if (isAd) {
-                    const successor = findNearestNonAd(node);
-                    
-                    if (document.getElementsByClassName("Polyester") === 0) {
-                        adSweep(successor, node, false);
-                    } else {
-                       adSweep(successor, node, true); 
-                    }
-                }
-            }
-            
-        }
-    }
+    const domain = window.location.hostname;
 
-    document.querySelectorAll(AD_SELECTORS).forEach(el => {
-        el?.style.setProperty('display', 'none', 'important');
-    });
+    // for (let a = 0; a < whiteList?.whitelist?.length; a++) {
+    //     // Don't generate anything since page is white listed
+    //     if (whiteList.whitelist[a].contains(domain)) {
+    //         return;
+    //     }
+    // }
+    getWhiteList().then((result)=> {
+        console.log(result);
+        console.log(domain);
+        let whitelisted = false;
+        for (let a = 0; a < result.whitelist.length; a++) {
+            let strLink = result.whitelist[a];
+            if ((strLink).includes(domain)) {
+                whitelisted = true;
+                console.log("WhiteListed!");
+            }
+        }
+
+        if (!whitelisted) {
+            for (const mutation of mutations) {
+            for (const node of mutation.addedNodes) {
+                    if (node instanceof Element) {
+                        const isAd = isAdElement(node);
+                        if (isAd) {
+                            const successor = findNearestNonAd(node);
+                            
+                            if (document.getElementsByClassName("Polyester") === 0) {
+                                adSweep(successor, node, false);
+                            } else {
+                                adSweep(successor, node, true); 
+                            }
+                        }
+                    }
+                    
+                }
+        }
+
+        document.querySelectorAll(AD_SELECTORS).forEach(el => {
+            el?.style.setProperty('display', 'none', 'important');
+        });
+    }
+        }
+        );
 
 });
 
-console.log("");
 
 observer.observe(document.body, {
     childList: true,
