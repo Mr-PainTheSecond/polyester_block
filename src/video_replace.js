@@ -1,3 +1,5 @@
+
+
   const AD_SELECTORS = [
     '[id^="WikiaAd"]',
     '[id*="ad-slot"]',
@@ -26,12 +28,12 @@
 
 const COMBINED_SELECTOR = AD_SELECTORS.join(',');
 
-function adSweep(ads) {
+function adSweep(parent, ads) {
     const prevWidth = ads.offsetWidth;
     const prevHeight = ads.offsetHeight;
     const prevRect = ads.getBoundingClientRect();
-    ads.innerHTML = ""  
     const polyesterAd = document.createElement("video");
+
 
     polyesterAd.src = chrome.runtime.getURL("Videos/PolyNormal.mp4");
     polyesterAd.style.width = `${prevWidth}px`;
@@ -52,7 +54,7 @@ function adSweep(ads) {
     AdLink.target = "_blank";
 
     AdLink.appendChild(polyesterAd);
-    ads.appendChild(AdLink);
+    parent.appendChild(AdLink);
 
 
     polyesterAd.load();
@@ -84,23 +86,43 @@ function isAdElement(el) {
     });
   }
 
+// function findMatchingElement(el) {
+//     for (let a = 0; a < AD_SELECTORS.length; a++) {
+//         if (el.matches(sel[a])) {
+//             return sel[a];
+//         }
+//     }
+
+//     return null;
+// }
+
+var rectList = []
 
 const observer = new MutationObserver((mutations) => {
+    rectList = []
+
     for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {
             if (node instanceof Element) {
-                const isAd = isAdElement(node)
+                const isAd = isAdElement(node);
                 if (isAd) {
+                    const successor = node.parentElement;
+                    
+                    adSweep(successor, node);
+
                     console.log("Found video/img");
-                    adSweep(node);
                 }
             }
             
         }
     }
+
+    document.querySelectorAll(AD_SELECTORS).forEach(el => {
+        el?.style.setProperty('display', 'none', 'important');
+    });
 });
 
-console.log("")
+console.log("");
 
 observer.observe(document.body, {
     childList: true,
