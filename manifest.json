@@ -27,5 +27,12 @@
 
   "permissions": [
     "scripting", "activeTab"
-  ]
+  ],
+  
+    "icons": {
+        "16": "Images/Icon.png",
+        "32": "Images/Icon.png",
+        "48": "Images/Icon.png",
+        "128": "Images/Icon.png"
+    }
 }
