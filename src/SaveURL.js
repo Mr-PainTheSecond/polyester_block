@@ -1,3 +1,4 @@
+
 document.getElementById("submitWhitelist").addEventListener("click", submitWhitelist);
 document.getElementById("submitBlacklist").addEventListener("click", submitBlacklist);
 
@@ -6,6 +7,8 @@ const urlArr = [];
 function submitWhitelist() {
     let url = document.getElementById("whitelist").value;
     urlArr.push(url);
+
+    console.log(url);
 
     const txtBox = document.createElement('h3');
     txtBox.textContent = url;
