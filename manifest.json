@@ -7,4 +7,16 @@
     "action": {
         "default_popup": "src/index.html"
     }
+    ,
+    "content_scripts": [
+    {
+      "js": ["src/video_replace.js"],
+      "matches": [
+        "https://*.com/*"
+      ]
+    }
+  ],
+  "permissions": [
+    "scripting"
+  ]
 }
