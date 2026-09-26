@@ -10,7 +10,7 @@ const VIDEO_LIST = [
     "Videos/PolyIronMan.mp4"
 ];
 
- const AD_SELECTORS = [
+const AD_SELECTORS = [
     '[id^="WikiaAd"]',
     '[id*="ad-slot"]',
     '[class*="ad-slot"]',
@@ -33,8 +33,63 @@ const VIDEO_LIST = [
     '#PORTABLE_INFOBOX_BOXAD',
     '#RAIL_BOXAD',
     '#BOTTOM_LEADERBOARD_BOXAD',
-    'lngtd-ad-wrapper-banner'
+    'lngtd-ad-wrapper-banner',
+    '[id*="advert"]',
+  '[class*="advert"]',
+  '[id*="banner-ad"]',
+  '[class*="banner-ad"]',
+  '[id^="div-gpt-ad"]',
+  '[id*="dfp-ad"]',
+  '[class*="adsbygoogle"]',
+  '.adsbygoogle',
+  '[id*="sponsor"]',
+  '[class*="sponsor"]',
+  '[class*="promoted"]',
+  '[data-ad-client]',
+  '[data-ad-format]',
+  '[data-google-query-id]',
+
+  // Ad network / vendor iframes
+  'iframe[src*="googleadservices.com"]',
+  'iframe[src*="amazon-adsystem.com"]',
+  'iframe[src*="adnxs.com"]',
+  'iframe[src*="taboola.com"]',
+  'iframe[src*="outbrain.com"]',
+  'iframe[src*="criteo.com"]',
+  'iframe[src*="pubmatic.com"]',
+  'iframe[src*="rubiconproject.com"]',
+  'iframe[src*="openx.net"]',
+  'iframe[id*="aswift"]',
+
+  // Container / layout conventions for ad slots
+  '[class*="ad-wrapper"]',
+  '[class*="ad-unit"]',
+  '[id*="ad-unit"]',
+  '[class*="ad-placeholder"]',
+  '[class*="native-ad"]',
+  '[class*="in-content-ad"]',
+  '[class*="sidebar-ad"]',
+  '[class*="sticky-ad"]',
+  '[class*="interstitial-ad"]',
+
+  '[id^="AdThrive"]',
+  '.adthrive-ad',
+  '[class*="mediavine"]',
+  '[id*="prebid"]',
+  '[class*="ezoic"]',
+  '[id^="ez-"]',
+
+  '[id^="ad_"]',
+  '[id^="Ad_"]',
+  '[id*="_ad_"]',
+  '[id$="-ad"]',
+  '[id$="_ad"]',
+
+  '[data-testid*="ad"]',
+  '[data-component*="ad"]',
+  '[aria-label*="Advertisement"]',
   ];
+
 
 let adFlagsList = null;
 
@@ -43,8 +98,8 @@ function readTextFile(file) {
     rawFile.open("GET", file, false);
     rawFile.onreadystatechange = function() {
         if (rawFile.readyState === 4) {
-            if (rawFile.status === 200 || rawFile.status == 0) {
-                adFlagsList = rawFile.responseText.split("\n");
+            if (rawFile.status === 200 || rawFile.status === 0) {
+                adFlagsList = Array.from(rawFile.responseText.split("\n"));
             }
         }
     }
@@ -54,7 +109,7 @@ function readTextFile(file) {
 
 readTextFile(chrome.runtime.getURL("data/easylist.txt"));
 
-const COMBINED_SELECTOR = adFlagsList.join(',');
+const COMBINED_SELECTOR = AD_SELECTORS.join(',');
 
 class AD {
     constructor(div, aLink, video, width, height) {
@@ -85,30 +140,37 @@ function randInt(low, high) {
     return low + Math.floor((Math.random() * (high - low)));
 }
 
-function adSweep(parent, ads) {
-    const prevRect = ads.getBoundingClientRect();
+// async function getTab() {
+//     let queryOptions = { active: true, lastFocusedWindow: true };
+//     let [tab] = await chrome.tabs?.query(queryOptions);
+//     return tab
+// }
+
+async function adSweep(parent, ads, muted) {
+
     const polyesterAd = document.createElement("video");
     const polyDiv = document.createElement("div");
-    const minDimension = Math.min(parent.width, parent.height);
-    console.log(minDimension);
-    polyDiv.style.width = `${50}%`;
-    polyDiv.style.height = `${50}%`;
+    polyDiv.style.width = `${10}%`;
+    polyDiv.style.height = `${10}%`;
 
     const chosenVideo = VIDEO_LIST[randInt(0, VIDEO_LIST.length)];
     console.log(chosenVideo);
     polyesterAd.src = chrome.runtime.getURL(chosenVideo);
     polyesterAd.autoplay = true;
     polyesterAd.loop = true;
-    polyesterAd.muted = false;
+    polyesterAd.muted = muted;
     polyesterAd.controls = false;
     polyesterAd.className = "Polyester"
     polyesterAd.style.objectFit = "cover";
 
 
     const AdLink = document.createElement("a");
-    AdLink.style.position = "relative";
-    AdLink.style.width = `${50}%`;
-    AdLink.style.height = `${50}%`;
+
+    const isYouTube = window.location.hostname.includes('youtube.com');
+    AdLink.style.position = isYouTube ? 'fixed' : 'relative';
+
+    AdLink.style.width = `${10}%`;
+    AdLink.style.height = `${10}%`;
     AdLink.href = "https://www.youtube.com/watch?v=zswT92VzOYM&pp=ygUYcG9seWVzdGVyIHNwaWRlcm1hbiBlZGl0";
     AdLink.target = "_blank";
 
@@ -116,12 +178,10 @@ function adSweep(parent, ads) {
     polyDiv.appendChild(AdLink);
     parent.appendChild(polyDiv);
 
-
-    polyesterAd.load();
     console.log("May play...");
 
-    const newAD = new AD(polyDiv, AdLink, polyesterAd, `${minDimension}px`, `${minDimension}px`);
-    adArray[adArray.length] = newAD;
+
+    return true;
 }
 
 
@@ -163,6 +223,26 @@ function fixSizes() {
 // }
 
 
+function trySize() {
+    if (adArray.length === 0) return;
+
+    for (let a = 0; a < adArray.length; a++) {
+        const successor = findNearestNonAd(adArray[a]);
+        let success = adSweep(successor, adArray[a]);
+
+        if (success) {
+            adArray.splice(a);
+            a--;
+        }
+    }
+
+    if (adArray.length === 0) {
+        document.querySelectorAll(AD_SELECTORS).forEach(el => {
+            el?.style.setProperty('display', 'none', 'important');
+        });
+    }
+}
+
 
 var rectList = []
 
@@ -176,9 +256,11 @@ const observer = new MutationObserver((mutations) => {
                 if (isAd) {
                     const successor = findNearestNonAd(node);
                     
-                    adSweep(successor, node);
-
-                    console.log("Found video/img");
+                    if (document.getElementsByClassName("Polyester") === 0) {
+                        adSweep(successor, node, false);
+                    } else {
+                       adSweep(successor, node, true); 
+                    }
                 }
             }
             
@@ -188,6 +270,7 @@ const observer = new MutationObserver((mutations) => {
     document.querySelectorAll(AD_SELECTORS).forEach(el => {
         el?.style.setProperty('display', 'none', 'important');
     });
+
 });
 
 console.log("");
@@ -197,4 +280,4 @@ observer.observe(document.body, {
     subtree: true
 });
 
-// setInterval(() => {fixSizes();}, 34);
+// setInterval(() => {trySize();}, 34);
