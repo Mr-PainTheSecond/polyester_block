@@ -7,7 +7,13 @@ const VIDEO_LIST = [
     "Videos/PolyScout.mp4",
     "Videos/PolyBaldi.mp4",
     "Videos/PolyBackrooms.mp4",
-    "Videos/PolyIronMan.mp4"
+    "Videos/PolyIronMan.mp4", 
+    "Videos/CottonMan.mp4",
+    "Videos/PolyChem.mp4",
+    "Videos/PolyIdk.mp4",
+    "Videos/PolyReverse.mp4",
+    "Videos/PolySponge.mp4",
+    "Videos/PolyToy.mp4"
 ];
 
 const KEY_NAME = "whitelist";
