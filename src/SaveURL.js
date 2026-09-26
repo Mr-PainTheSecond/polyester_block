@@ -2,11 +2,12 @@
 document.getElementById("submitWhitelist").addEventListener("click", submitWhitelist);
 document.getElementById("submitBlacklist").addEventListener("click", submitBlacklist);
 
-const urlArr = [];
+const wlArr = [];
+const blArr = [];
 
 function submitWhitelist() {
     let url = document.getElementById("whitelist").value;
-    urlArr.push(url);
+    wlArr.push(url);
 
     console.log(url);
 
@@ -17,7 +18,7 @@ function submitWhitelist() {
 
 function submitBlacklist() {
     let url = document.getElementById("blacklist").value;
-    urlArr.push(url);
+    blArr.push(url);
 
     const txtBox = document.createElement('h2');
     txtBox.textContent = url;
