@@ -39,7 +39,7 @@ async function createStorage() {
 createStorage().then(() => {
     console.log(chrome.storage.local.get(["whitelist"]));
 
-    appendWhiteList("https://www.youtube.com");
+    // appendWhiteList("https://www.youtube.com");
 });
 
 const AD_SELECTORS = [
