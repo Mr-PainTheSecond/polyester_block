@@ -29,7 +29,7 @@
         }
 
         h2 {
-            color: #000000;
+            color: #ffffff;
             align-items: right;
             margin-left: 1000px;    
             transform: translateY(-460%);
@@ -56,16 +56,17 @@
         }
 
         #blacklist{
-            color: #000000;
+            color: #ffffff;
+            border-color: #ffffff;
             transform: translateY(-550%);
         }
 
         .bl {
-            color: #000000;
+            color: #ffffff;
             margin-left: 1000px;
             transform: translateY(-460%);
             position: relative;
-
+            border-color: #ffffff;
             bottom: 115px;
         }
 
@@ -79,13 +80,13 @@
         <label for="whitelist">Enter websites to whitelist:</label>
         <input type="url" id="whitelist" name="whitelist" placeholder="Enter website URL">
         <button id = "submitWhitelist">Submit URL</button>
-        <h3>URLs here:</h3>
+        <h3>Add Links to be left alone: </h3>
 
         <h2>Black List: </h2>
         <label class="bl" for="blacklist">Enter websites to blacklist:</label>
         <input type="url" id="blacklist" name="blacklist" placeholder="Enter website URL">
         <button id = "submitBlacklist">Submit URL</button>
-        <h2>URLs here:</h2>
+        <h2>Add Links to be incapacitated: </h2>
 
         <video controls autoplay loop playsinline id="videoBounce">
                 <source src="../Videos/PolyNormal.mp4" type="video/mp4">
