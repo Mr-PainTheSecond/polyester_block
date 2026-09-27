@@ -39,6 +39,23 @@ async function getWhiteList() {
 }
 
 
+async function removeFromWhiteList(url) {
+    var oldWhiteList = await chrome.storage.local.get(["whitelist"]);
+    let currentWhiteList = oldWhiteList.whitelist;
+
+    console.log("In the removal phase");
+
+    for (let a = 0; a < currentWhiteList.length; a++) {
+        if (currentWhiteList[a] === url) {
+            currentWhiteList.splice(a, 1);
+            console.log("Found matching item");
+            break;
+        }
+    }
+
+    await chrome.storage.local.set({whitelist: currentWhiteList})
+}
+
 
 function submitWhitelist() {
     let url = document.getElementById("whitelist").value;
@@ -48,8 +65,10 @@ function submitWhitelist() {
         if(wlArr[i] === url){
             wlArr.splice(i, 1);
             txtBox.textContent = url + " was deleted";
-            url = null;
             document.body.appendChild(txtBox);
+
+            removeFromWhiteList(url);
+            url = null;
             return;
         }
     }
