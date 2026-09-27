@@ -1,5 +1,6 @@
 
 populateWL();
+populateBL();
 document.getElementById("submitWhitelist").addEventListener("click", submitWhitelist);
 document.getElementById("submitBlacklist").addEventListener("click", submitBlacklist);
 
@@ -20,6 +21,19 @@ function populateWL() {
     });
 }
 
+function populateBL() {
+    let blackList = getBlackList().then((result)=>{
+        for (let a = 0; a < result.blacklist.length; a++) {
+            let strLink = result.blacklist[a];
+            blArr.push(strLink);
+            console.log("element created");
+            const txtBox = document.createElement('h2');
+            txtBox.textContent = strLink;
+            document.body.appendChild(txtBox);
+        }
+    });
+}
+
 async function appendWhiteList(url) {
 
     var oldWhiteList = await chrome.storage.local.get(["whitelist"]);
@@ -31,6 +45,23 @@ async function appendWhiteList(url) {
     }
 
     return await chrome.storage.local.set({whitelist: currentWhiteList});
+}
+
+async function appendBlackList(url) {
+
+    var oldBlackList = await chrome.storage.local.get(["blacklist"]);
+    console.log(oldBlackList);
+    let currentBlackList = oldBlackList.blacklist;
+    if (!(currentBlackList.includes(url))) {
+        currentBlackList.push(url);
+    }
+
+    return await chrome.storage.local.set({blacklist: currentBlackList});
+}
+
+async function getBlackList() {
+    let currentBlackListObj = await chrome.storage.local.get(["blacklist"]);
+    return currentBlackListObj;
 }
 
 async function getWhiteList() {
@@ -56,6 +87,22 @@ async function removeFromWhiteList(url) {
     await chrome.storage.local.set({whitelist: currentWhiteList})
 }
 
+async function removeFromBlackList(url) {
+    var oldBlackList = await chrome.storage.local.get(["blacklist"]);
+    let currentBlackList = oldBlackList.blacklist;
+
+    console.log("In the removal phase");
+
+    for (let a = 0; a < currentBlackList.length; a++) {
+        if (currentBlackList[a] === url) {
+            currentBlackList.splice(a, 1);
+            console.log("Found matching item");
+            break;
+        }
+    }
+
+    await chrome.storage.local.set({blacklist: currentBlackList})
+}
 
 function submitWhitelist() {
     let url = document.getElementById("whitelist").value;
@@ -86,18 +133,24 @@ function submitWhitelist() {
 
 function submitBlacklist() {
     let url = document.getElementById("blacklist").value;
-        const txtBox = document.createElement('h2');
+    const txtBox = document.createElement('h2');
 
     for(let i = 0; i < blArr.length; i++){
         if(blArr[i] === url){
             blArr.splice(i, 1);
             txtBox.textContent = url + " was deleted";
-            url = null;
             document.body.appendChild(txtBox);
+
+            removeFromBlackList(url);
+            url = null;
             return;
         }
     }
     blArr.push(url);
+
+    for (let a = 0; a < blArr.length; a++) {
+        appendBlackList(blArr[a]);
+    }
 
     txtBox.textContent = url;
     document.body.appendChild(txtBox);

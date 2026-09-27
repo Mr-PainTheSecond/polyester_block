@@ -51,6 +51,7 @@
 
         #videoBounce {
             position: absolute;
+            z-index: 1000;
             width: 320px;
             border-radius: 12px;
         }
@@ -81,12 +82,15 @@
         <input type="url" id="whitelist" name="whitelist" placeholder="Enter website URL">
         <button id = "submitWhitelist">Submit URL</button>
         <h3>Add Links to be left alone: </h3>
+        <h3>Submitting link in list removes it from whitelist: </h3>
 
         <h2>Black List: </h2>
+        <h2></h2>
         <label class="bl" for="blacklist">Enter websites to blacklist:</label>
         <input type="url" id="blacklist" name="blacklist" placeholder="Enter website URL">
         <button id = "submitBlacklist">Submit URL</button>
         <h2>Add Links to be incapacitated: </h2>
+        <h2>Submitting link in list removes it from blacklist:</h2>
 
         <video controls autoplay loop playsinline id="videoBounce">
                 <source src="../Videos/PolyNormal.mp4" type="video/mp4">

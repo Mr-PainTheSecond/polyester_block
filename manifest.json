@@ -20,7 +20,7 @@
 
    "web_accessible_resources": [
     {
-      "resources": ["Videos/*.mp4", "data/*"],
+      "resources": ["Videos/*.mp4", "data/*", "scripts/*"],
       "matches": ["https://*.com/*"]
     }
   ],

@@ -1,6 +1,8 @@
 
 console.log("starting video_replace.js");
 
+var blackListVideo;
+
 const VIDEO_LIST = [
     "Videos/PolyNormal.mp4",
     "Videos/PolyLowRes.mp4",
@@ -32,9 +34,20 @@ async function createStorage() {
         await chrome.storage.local.set({whitelist: Array()});
     }
 
+
+
+    let theBlackList = await chrome.storage.local.get(["blacklist"]);
+    if (theBlackList.blacklist === undefined) {
+            console.log("initializing blck list");
+            await chrome.storage.local.set({blacklist: []});
+            theBlackList = await chrome.storage.local.get(["blacklist"]);
+            console.log(theBlackList.blacklist);
+        }
+    
     let theWhitelist = await chrome.storage.local.get(["whitelist"]);
     console.log(theWhitelist);
 }
+
 
 createStorage().then(() => {
     console.log(chrome.storage.local.get(["whitelist"]));
@@ -199,12 +212,13 @@ async function adSweep(parent, ads, muted) {
     polyesterAd.muted = muted;
     polyesterAd.controls = false;
     polyesterAd.className = "Polyester"
+    polyesterAd.style.zIndex = -1;
     polyesterAd.style.objectFit = "cover";
 
 
     const AdLink = document.createElement("a");
 
-    const isYouTube = (window.location.hostname.includes('youtube.com') || window.location.hostname.includes('stackoverflow.com') );
+    const isYouTube = (window.location.hostname.includes('youtube.com') );
     AdLink.style.position = isYouTube ? 'fixed' : 'relative';
 
     AdLink.style.width = `${percent}%`;
@@ -249,6 +263,11 @@ async function appendWhiteList(url) {
 async function getWhiteList() {
     let currentWhiteListObj = await chrome.storage.local.get(["whitelist"]);
     return currentWhiteListObj;
+}
+
+async function getBlackList() {
+    let currentBlackListObj = await chrome.storage.local.get(["blacklist"]);
+    return currentBlackListObj;
 }
 
 function findNearestNonAd(node) {
@@ -302,10 +321,49 @@ function trySize() {
 var rectList = []
 
 
+function pageDeactivation(node) {
+    if (node === null || node === undefined) return;
+
+    for (let a = 0; a < node.childNodes?.length; a++) {
+        pageDeactivation(node.childNodes[a]);
+
+        node.childNodes[a]?.style?.setProperty('display', 'none', 'important');
+    }
+}
+
+function scriptDeactivation() {
+    let scripts = document.getElementsByTagName("script");
+
+    for (let a = 0; a < scripts.length; a++) {
+        scripts[a].style.setProperty('display', 'none', 'important');
+    }
+}
+
+
+let darkSite = []
+
 const observer = new MutationObserver((mutations) => {
     rectList = []
 
     const domain = window.location.hostname;
+
+    // Do not reload video if it is already playing.
+    if (darkSite.includes(domain)) {
+        return;
+    }
+    const head = document.getElementsByTagName("head");
+    const scripts = document.getElementsByTagName("script");
+    const images = document.getElementsByTagName("img");
+
+
+    
+
+    // document.body.innerHTML = "\n".join(adFlagsList);
+
+
+    // for (let a = 0; a < scripts.length; a++) {
+    //     scripts[a].innerHTML = "";
+    // }
 
     // for (let a = 0; a < whiteList?.whitelist?.length; a++) {
     //     // Don't generate anything since page is white listed
@@ -313,6 +371,43 @@ const observer = new MutationObserver((mutations) => {
     //         return;
     //     }
     // }
+    let blacklisted = false;
+    getBlackList().then((result) => {
+        for (let a = 0; a < result.blacklist.length; a++) {
+            let strLink = result.blacklist[a];
+            if ((strLink).includes(domain)) {
+                blaclisted = true;
+                console.log("BlackListed!");
+                darkSite[darkSite.length] = domain;
+                pageDeactivation(document.body);
+                scriptDeactivation();
+                
+
+                blackListVideo = document.createElement("video");
+                blackListVideo.position = "fixed";
+                blackListVideo.className = "Polyester";
+                blackListVideo.style.width = `${screen.width}px`;
+                blackListVideo.style.height = `${screen.height}px`;
+                blackListVideo.style.margin = "0";
+                blackListVideo.style.padding = "0";
+                blackListVideo.style.overflow = "hidden";
+                blackListVideo.playsInline = true;
+                blackListVideo.autoplay = true;
+                blackListVideo.loop = true;
+                blackListVideo.muted = true;
+                // blackListVideo.addEventListener("onclick", () => {
+                //     console.log("clicked!");
+                //     blackListVideo.muted = false;});
+                const newVideo = VIDEO_LIST[randInt(0, VIDEO_LIST.length)];
+                blackListVideo.load();
+                document.body.appendChild(blackListVideo);
+                blackListVideo.src = chrome.runtime.getURL(newVideo);
+                break;
+            }
+        }
+    });
+
+
     getWhiteList().then((result)=> {
         console.log(result);
         console.log(domain);
@@ -349,7 +444,7 @@ const observer = new MutationObserver((mutations) => {
         });
     }
         }
-        );
+    );
 
 });
 
