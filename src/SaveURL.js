@@ -1,3 +1,4 @@
+
 document.getElementById("submitWhitelist").addEventListener("click", submitWhitelist);
 document.getElementById("submitBlacklist").addEventListener("click", submitBlacklist);
 
@@ -19,6 +20,8 @@ function submitWhitelist() {
         }
     }
     wlArr.push(url);
+
+    console.log(url);
 
     txtBox.textContent = url;
     document.body.appendChild(txtBox);
