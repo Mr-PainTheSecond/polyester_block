@@ -105,7 +105,8 @@ async function removeFromBlackList(url) {
 }
 
 function submitWhitelist() {
-    let url = document.getElementById("whitelist").value;
+    let literalURL = new String(document.getElementById("whitelist").value);
+    let url = literalURL.split(" ")[0];
     const txtBox = document.createElement('h3');
 
     for(let i = 0; i < wlArr.length; i++){
@@ -132,7 +133,8 @@ function submitWhitelist() {
 }
 
 function submitBlacklist() {
-    let url = document.getElementById("blacklist").value;
+    let literalURL = new String(document.getElementById("blacklist").value);
+    let url = literalURL.split(" ")[0];
     const txtBox = document.createElement('h2');
 
     for(let i = 0; i < blArr.length; i++){
@@ -148,10 +150,11 @@ function submitBlacklist() {
     }
     blArr.push(url);
 
+    txtBox.textContent = url;
+    document.body.appendChild(txtBox);
+
     for (let a = 0; a < blArr.length; a++) {
         appendBlackList(blArr[a]);
     }
 
-    txtBox.textContent = url;
-    document.body.appendChild(txtBox);
 }
