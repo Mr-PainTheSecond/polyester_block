@@ -1,8 +1,12 @@
 # Polyester Block
+
+> "Oh that me? Pure aura."
+> — Spider-Man
+
 The ad blockers to end all ad blockers. A Chrome extension works likes a regular ad blocker, disabling any element that 
 it identifies as an ad, but also replaces them with Polyester edits. What is a polyester edit?
 They are videos to which are ~~Hilariously over the top~~ The coolest video you have ever seen, hip with the times!
-Here is the [most famous example](https://www.youtube.com/watch?v=zswT92VzOYM)! Made with `JavaScript`, `HTML/CSS`, and `Manifest v3`
+Here is the [most famous example](! Made with `JavaScript`, `HTML/CSS`, and `Manifest v3`
 
 # The General Blocking
 When `Polyester Block` is on, with a `MutationObserver`, continuously checks through newly generated `HTML` elements that either include IDs or class names that match with `AD_SELECTORS`. 
